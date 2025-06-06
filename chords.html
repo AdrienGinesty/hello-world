@@ -14,14 +14,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             height: 100vh;
+            position: relative;
         }
 
         #chord {
             font-size: 15vw;
             font-weight: bold;
-            margin-top: 5vh;
         }
 
         #diagram {
@@ -32,7 +32,8 @@
         }
 
         .button-container {
-            margin-bottom: 5vh;
+            position: absolute;
+            bottom: 30px;
         }
 
         button {
@@ -105,6 +106,10 @@
 
         let currentChord = "C";
 
+        function formatChordName(name) {
+            return name.replace(/b/g, '♭').replace(/#/g, '♯');
+        }
+
         function getRandomChord() {
             const randomIndex = Math.floor(Math.random() * chords.length);
             return chords[randomIndex];
@@ -112,7 +117,7 @@
 
         function showNextChord() {
             currentChord = getRandomChord();
-            document.getElementById('chord').innerText = currentChord;
+            document.getElementById('chord').innerText = formatChordName(currentChord);
             document.getElementById('diagram').innerText = "";
         }
 
