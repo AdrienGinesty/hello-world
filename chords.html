@@ -1,164 +1,203 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Ukulele Chord Generator</title>
-    <style>
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            position: relative;
-        }
-
-        #chord {
-            font-size: 15vw;
-            font-weight: bold;
-        }
-
-        #diagram {
-            font-family: monospace;
-            font-size: 1.5em;
-            white-space: pre;
-            margin: 3vh 0;
-        }
-
-        .button-container {
-            position: absolute;
-            bottom: 30px;
-        }
-
-        button {
-            margin: 10px;
-            font-size: 1.2em;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <title>Ukulele Chord Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+    #chord {
+      font-size: 15vw;
+      font-weight: bold;
+    }
+    #diagram svg {
+      margin: 3vh 0;
+    }
+    .button-container {
+      position: absolute;
+      bottom: 30px;
+    }
+    button {
+      margin: 10px;
+      font-size: 1.2em;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-    <div id="chord">C</div>
-    <div id="diagram"></div>
-    <div class="button-container">
-        <button onclick="showNextChord()">Next</button>
-        <button onclick="showChordDetails()">Show Me the Chord</button>
-    </div>
+  <div id="chord">C</div>
+  <div id="diagram"></div>
+  <div class="button-container">
+    <button onclick="showNextChord()">Next</button>
+    <button onclick="showChordDetails()">Show Me the Chord</button>
+  </div>
 
-    <script>
-        const chords = [
-            "C", "Cm", "C#", "C#m", "Db", "Dbm", "D", "Dm", "D#", "D#m", "Eb", "Ebm",
-            "E", "Em", "F", "Fm", "F#", "F#m", "Gb", "Gbm", "G", "Gm", "G#", "G#m",
-            "Ab", "Abm", "A", "Am", "A#", "A#m", "Bb", "Bbm", "B", "Bm"
-        ];
+  <script>
+    const chords = [
+      "Ab", "Abm", "A", "Am", "A#", "A#m",
+      "Bb", "Bbm", "B", "Bm",
+      "C", "Cm", "C#", "C#m",
+      "Db", "Dbm", "D", "Dm", "D#", "D#m",
+      "Eb", "Ebm", "E", "Em",
+      "F", "Fm", "F#", "F#m",
+      "Gb", "Gbm", "G", "Gm", "G#", "G#m"
+    ];
 
-        const diagrams = {
-            "C":  `A|--3--\nE|-----\nC|-----\nG|-----`,
-            "Cm": `A|--3--\nE|--3--\nC|--3--\nG|--3--`,
-            "C#": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "C#m": `A|--4--\nE|--4--\nC|--4--\nG|--6--`,
-            "Db": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "Dbm": `A|--4--\nE|--4--\nC|--4--\nG|--6--`,
-            "D":  `A|-2---\nE|-2---\nC|-2---\nG|-----`,
-            "Dm": `A|-----\nE|-1---\nC|-2---\nG|-2---`,
-            "D#": `A|--3--\nE|--3--\nC|--3--\nG|--1--`,
-            "D#m": `A|--1--\nE|--2--\nC|--3--\nG|--3--`,
-            "Eb": `A|--3--\nE|--3--\nC|--3--\nG|--1--`,
-            "Ebm": `A|--1--\nE|--2--\nC|--3--\nG|--3--`,
-            "E":  `A|-2---\nE|-4---\nC|-4---\nG|-1---`,
-            "Em": `A|-2---\nE|-3---\nC|-4---\nG|-----`,
-            "F":  `A|-----\nE|-1---\nC|-----\nG|--2--`,
-            "Fm": `A|-----\nE|-1---\nC|-1---\nG|-1---`,
-            "F#": `A|--2--\nE|--2--\nC|--1--\nG|--1--`,
-            "F#m": `A|--2--\nE|--2--\nC|--1--\nG|--2--`,
-            "Gb": `A|--2--\nE|--2--\nC|--1--\nG|--1--`,
-            "Gbm": `A|--2--\nE|--2--\nC|--1--\nG|--2--`,
-            "G":  `A|-3---\nE|--2--\nC|-1---\nG|-----`,
-            "Gm": `A|--1--\nE|--3--\nC|--2--\nG|-----`,
-            "G#": `A|--3--\nE|--4--\nC|--3--\nG|--1--`,
-            "G#m": `A|--2--\nE|--4--\nC|--3--\nG|--1--`,
-            "Ab": `A|--3--\nE|--4--\nC|--3--\nG|--1--`,
-            "Abm": `A|--2--\nE|--4--\nC|--3--\nG|--1--`,
-            "A":  `A|-----\nE|-1---\nC|-----\nG|-2---`,
-            "Am": `A|-----\nE|-----\nC|-----\nG|--2--`,
-            "A#": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "A#m": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "Bb": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "Bbm": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
-            "B":  `A|--2--\nE|--2--\nC|--2--\nG|--4--`,
-            "Bm": `A|--2--\nE|--2--\nC|--2--\nG|--4--`
-        };
+    const diagrams = {
+      Ab: { A: 3, E: 4, C: 3, G: 1 },
+      Abm: { A: 2, E: 4, C: 3, G: 1 },
+      A: { A: 0, E: 0, C: 1, G: 2 },
+      Am: { A: 0, E: 0, C: 0, G: 2 },
+      "A#": { A: 1, E: 1, C: 2, G: 3 },
+      "A#m": { A: 1, E: 1, C: 1, G: 3 },
+      Bb: { A: 1, E: 1, C: 2, G: 3 },
+      Bbm: { A: 1, E: 1, C: 1, G: 3 },
+      B: { A: 2, E: 2, C: 3, G: 4 },
+      Bm: { A: 2, E: 2, C: 2, G: 4 },
+      C: { A: 3, E: 0, C: 0, G: 0 },
+      Cm: { A: 3, E: 3, C: 3, G: 0 },
+      "C#": { A: 4, E: 1, C: 1, G: 1 },
+      "C#m": { A: 4, E: 0, C: 1, G: 1 },
+      Db: { A: 4, E: 1, C: 1, G: 1 },
+      Dbm: { A: 4, E: 0, C: 1, G: 1 },
+      D: { A: 0, E: 2, C: 2, G: 2 },
+      Dm: { A: 0, E: 1, C: 2, G: 2 },
+      "D#": { A: 1, E: 3, C: 3, G: 0 },
+      "D#m": { A: 1, E: 2, C: 3, G: 3 },
+      Eb: { A: 1, E: 3, C: 3, G: 0 },
+      Ebm: { A: 1, E: 2, C: 3, G: 3 },
+      E: { A: 2, E: 4, C: 4, G: 4 },
+      Em: { A: 2, E: 3, C: 4, G: 4 },
+      F: { A: 0, E: 1, C: 0, G: 2 },
+      Fm: { A: 3, E: 1, C: 0, G: 1 },
+      "F#": { A: 1, E: 2, C: 1, G: 3 },
+      "F#m": { A: 0, E: 2, C: 1, G: 2 },
+      Gb: { A: 1, E: 2, C: 1, G: 3 },
+      Gbm: { A: 0, E: 2, C: 1, G: 2 },
+      G: { A: 2, E: 3, C: 2, G: 0 },
+      Gm: { A: 1, E: 3, C: 2, G: 0 },
+      "G#": { A: 3, E: 4, C: 3, G: 1 },
+      "G#m": { A: 2, E: 4, C: 3, G: 1 }
+    };
 
-        let currentChord = "C";
+    let currentChord = "C";
 
-        function formatChordName(name) {
-            return name.replace(/b/g, '♭').replace(/#/g, '♯');
+    function formatChordName(name) {
+      return name.replace(/b/g, '♭').replace(/#/g, '♯');
+    }
+
+    function getRandomChord() {
+      const randomIndex = Math.floor(Math.random() * chords.length);
+      return chords[randomIndex];
+    }
+
+    function drawChord(diagram) {
+      const stringOrder = ['A', 'E', 'C', 'G'];
+      const fretCount = 4;
+      const fretSpacing = 40;
+      const stringSpacing = 40;
+
+      const svgWidth = (fretCount + 1) * fretSpacing + 60;
+      const svgHeight = stringOrder.length * stringSpacing + 40;
+
+      let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
+
+      const yTop = 40;
+      const yBottom = 40 + (stringOrder.length - 1) * stringSpacing;
+
+      stringOrder.forEach((s, i) => {
+        const y = 40 + i * stringSpacing;
+        svg += `<line x1="60" y1="${y}" x2="${svgWidth - 20}" y2="${y}" stroke="black" />`;
+        svg += `<text x="40" y="${y + 5}" font-size="12" text-anchor="end">${s}</text>`;
+      });
+
+      for (let f = 0; f <= fretCount; f++) {
+        const x = 60 + f * fretSpacing;
+        const strokeWidth = f === 0 ? 4 : 1;
+        svg += `<line x1="${x}" y1="${yTop}" x2="${x}" y2="${yBottom}" stroke="black" stroke-width="${strokeWidth}" />`;
+      }
+
+      stringOrder.forEach((s, i) => {
+        const fret = diagram[s];
+        if (fret > 0) {
+          const x = 60 + fret * fretSpacing - fretSpacing / 2;
+          const y = 40 + i * stringSpacing;
+          svg += `<circle cx="${x}" cy="${y}" r="10" fill="black" />`;
         }
+      });
 
-        function getRandomChord() {
-            const randomIndex = Math.floor(Math.random() * chords.length);
-            return chords[randomIndex];
-        }
+      svg += `</svg>`;
+      return svg;
+    }
 
-        function showNextChord() {
-            currentChord = getRandomChord();
-            document.getElementById('chord').innerText = formatChordName(currentChord);
-            document.getElementById('diagram').innerText = "";
-        }
+    function showNextChord() {
+      currentChord = getRandomChord();
+      document.getElementById('chord').innerText = formatChordName(currentChord);
+      document.getElementById('diagram').innerHTML = "";
+    }
 
-        function showChordDetails() {
-            const diagram = diagrams[currentChord];
-            document.getElementById('diagram').innerText = diagram || "Diagram not available.";
-        }
+    function showChordDetails() {
+      const diagram = diagrams[currentChord];
+      if (diagram) {
+        document.getElementById('diagram').innerHTML = drawChord(diagram);
+      } else {
+        document.getElementById('diagram').innerText = "Diagram not available.";
+      }
+    }
 
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.warn("Speech recognition not supported in this browser.");
-                return;
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn("Speech recognition not supported in this browser.");
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = function(event) {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            const transcript = event.results[i][0].transcript.trim().toLowerCase();
+            if (transcript === "next") {
+              showNextChord();
+            } else if (transcript === "show") {
+              showChordDetails();
             }
-
-            const recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US';
-
-            recognition.onresult = function(event) {
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    if (event.results[i].isFinal) {
-                        const transcript = event.results[i][0].transcript.trim().toLowerCase();
-                        if (transcript === "next") {
-                            showNextChord();
-                        }
-                    }
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Speech recognition error:", event.error);
-            };
-
-            recognition.start();
+          }
         }
+      };
 
-        // Initialize
-        showNextChord();
-        initSpeechRecognition();
-    </script>
+      recognition.onerror = function(event) {
+        console.error("Speech recognition error:", event.error);
+      };
+
+      recognition.start();
+    }
+
+    showNextChord();
+    initSpeechRecognition();
+  </script>
 </body>
 </html>
