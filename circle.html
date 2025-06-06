@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Circle of Fifths</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #f5f5f5;
+      overflow: hidden;
+    }
+    svg {
+      display: block;
+      height: 100vh;
+      width: 100vw;
+    }
+    .arrow-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      line-height: 38px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 1000;
+      user-select: none;
+    }
+    .arrow-left {
+      left: 20px;
+    }
+    .arrow-right {
+      right: 20px;
+    }
+    text {
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      dominant-baseline: middle;
+      text-anchor: middle;
+      cursor: move;
+    }
+    .minor {
+      font-size: 14px;
+      fill: #555;
+    }
+        .accidental {
+      font-size: 12px;
+      dy: -0.4em;
+    }
+    .roman {
+      fill: red;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .roman-lower {
+      fill: red;
+      font-size: 14px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+    <div class="arrow-button arrow-left" id="rotateLeft">⟵</div>
+  <div class="arrow-button arrow-right" id="rotateRight">⟶</div>
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+    <g id="circle-group">
+      <circle cx="500" cy="500" r="400" fill="white" stroke="#333" stroke-width="2"/>
+      <circle cx="500" cy="500" r="300" fill="none" stroke="#ccc" stroke-dasharray="4,4" stroke-width="1"/>
+    </g>
+    <g id="static-lines">
+      <line x1="500" y1="500" x2="774" y2="226" stroke="red" stroke-width="4"/>
+      <line x1="500" y1="500" x2="226" y2="226" stroke="red" stroke-width="4"/>
+    </g>
+    <g id="static-labels">
+      <text x="450" y="120" class="roman">I</text>
+      <text x="270" y="200" class="roman">IV</text>
+      <text x="720" y="200" class="roman">V</text>
+      <text x="580" y="350" class="roman-lower" data-label="iii">iii</text>
+      <text x="500" y="350" class="roman-lower" data-label="vi">vi</text>
+      <text x="420" y="350" class="roman-lower" data-label="ii">ii</text>
+    </g>
+  </svg>
+  <script>
+        let selectedText = null;
+    let currentRotation = 0;
+
+    const svg = document.querySelector("svg");
+    const majors = ["C", "G", "D", "A", "E", "B", "F♯", "D♭", "A♭", "E♭", "B♭", "F"];
+    const minors = ["Am", "Em", "Bm", "F♯m", "C♯m", "G♯m", "D♯m", "B♭m", "Fm", "Cm", "Gm", "Dm"];
+    const centerX = 500, centerY = 500;
+    const outerRadius = 360;
+    const innerRadius = 270;
+    const svgNS = "http://www.w3.org/2000/svg";
+    const circleGroup = document.getElementById("circle-group");
+
+    function splitAccidental(text) {
+      return text.replace(/([A-G])([♯♭]?)(m?)/, (match, base, accidental, suffix) => {
+        if (accidental) {
+          return `${base}<tspan class='accidental'>${accidental}</tspan>${suffix}`;
+        } else {
+          return `${base}${suffix}`;
+        }
+      });
+    }
+
+    function drawChart(rotationDegrees = 0) {
+      circleGroup.innerHTML = `
+        <circle cx="500" cy="500" r="400" fill="white" stroke="#333" stroke-width="2"/>
+        <circle cx="500" cy="500" r="300" fill="none" stroke="#ccc" stroke-dasharray="4,4" stroke-width="1"/>
+      `;
+
+      const rotationRadians = (rotationDegrees / 360) * 2 * Math.PI;
+
+      for (let i = 0; i < 12; i++) {
+        const angle = ((i + 0.5) / 12) * 2 * Math.PI - Math.PI / 2 + rotationRadians;
+        const x = centerX + outerRadius * Math.cos(angle);
+        const y = centerY + outerRadius * Math.sin(angle);
+
+        const line = document.createElementNS(svgNS, "line");
+        line.setAttribute("x1", centerX);
+        line.setAttribute("y1", centerY);
+        line.setAttribute("x2", x);
+        line.setAttribute("y2", y);
+        line.setAttribute("stroke", "#ddd");
+        line.setAttribute("stroke-width", "1");
+        circleGroup.appendChild(line);
+      }
+
+      majors.forEach((note, i) => {
+        const angle = (i / 12) * 2 * Math.PI - Math.PI / 2 + rotationRadians;
+        const x = centerX + outerRadius * Math.cos(angle);
+        const y = centerY + outerRadius * Math.sin(angle);
+
+        const text = document.createElementNS(svgNS, "text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.innerHTML = splitAccidental(note);
+        circleGroup.appendChild(text);
+      });
+
+      minors.forEach((note, i) => {
+        const angle = (i / 12) * 2 * Math.PI - Math.PI / 2 + rotationRadians;
+        const x = centerX + innerRadius * Math.cos(angle);
+        const y = centerY + innerRadius * Math.sin(angle);
+
+        const text = document.createElementNS(svgNS, "text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.setAttribute("class", "minor");
+        text.innerHTML = splitAccidental(note);
+        circleGroup.appendChild(text);
+      });
+    }
+
+    let isAnimating = false;
+function animateToRotation(targetRotation) {
+  if (isAnimating) return;
+  isAnimating = true;
+  const step = (targetRotation - currentRotation) / 10;
+  let i = 0;
+  function animate() {
+    if (i < 10) {
+      currentRotation += step;
+      drawChart(currentRotation);
+      i++;
+      requestAnimationFrame(animate);
+    } else {
+      currentRotation = targetRotation;
+      drawChart(currentRotation);
+      isAnimating = false;
+    }
+  }
+  animate();
+}
+
+    document.getElementById("rotateLeft").addEventListener("click", () => {
+      animateToRotation(currentRotation - 30);
+    });
+
+    document.getElementById("rotateRight").addEventListener("click", () => {
+      animateToRotation(currentRotation + 30);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      drawChart(currentRotation);
+    });
+  </script>
+</body>
+</html>
