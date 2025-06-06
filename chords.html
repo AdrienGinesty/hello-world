@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ukulele Chord Generator</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+        }
+
+        #chord {
+            font-size: 15vw;
+            font-weight: bold;
+            margin-top: 5vh;
+        }
+
+        #diagram {
+            font-family: monospace;
+            font-size: 1.5em;
+            white-space: pre;
+            margin: 3vh 0;
+        }
+
+        .button-container {
+            margin-bottom: 5vh;
+        }
+
+        button {
+            margin: 10px;
+            font-size: 1.2em;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="chord">C</div>
+    <div id="diagram"></div>
+    <div class="button-container">
+        <button onclick="showNextChord()">Next</button>
+        <button onclick="showChordDetails()">Show Me the Chord</button>
+    </div>
+
+    <script>
+        const chords = [
+            "C", "Cm", "C#", "C#m", "Db", "Dbm", "D", "Dm", "D#", "D#m", "Eb", "Ebm",
+            "E", "Em", "F", "Fm", "F#", "F#m", "Gb", "Gbm", "G", "Gm", "G#", "G#m",
+            "Ab", "Abm", "A", "Am", "A#", "A#m", "Bb", "Bbm", "B", "Bm"
+        ];
+
+        const diagrams = {
+            "C":  `A|--3--\nE|-----\nC|-----\nG|-----`,
+            "Cm": `A|--3--\nE|--3--\nC|--3--\nG|--3--`,
+            "C#": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "C#m": `A|--4--\nE|--4--\nC|--4--\nG|--6--`,
+            "Db": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "Dbm": `A|--4--\nE|--4--\nC|--4--\nG|--6--`,
+            "D":  `A|-2---\nE|-2---\nC|-2---\nG|-----`,
+            "Dm": `A|-----\nE|-1---\nC|-2---\nG|-2---`,
+            "D#": `A|--3--\nE|--3--\nC|--3--\nG|--1--`,
+            "D#m": `A|--1--\nE|--2--\nC|--3--\nG|--3--`,
+            "Eb": `A|--3--\nE|--3--\nC|--3--\nG|--1--`,
+            "Ebm": `A|--1--\nE|--2--\nC|--3--\nG|--3--`,
+            "E":  `A|-2---\nE|-4---\nC|-4---\nG|-1---`,
+            "Em": `A|-2---\nE|-3---\nC|-4---\nG|-----`,
+            "F":  `A|-----\nE|-1---\nC|-----\nG|--2--`,
+            "Fm": `A|-----\nE|-1---\nC|-1---\nG|-1---`,
+            "F#": `A|--2--\nE|--2--\nC|--1--\nG|--1--`,
+            "F#m": `A|--2--\nE|--2--\nC|--1--\nG|--2--`,
+            "Gb": `A|--2--\nE|--2--\nC|--1--\nG|--1--`,
+            "Gbm": `A|--2--\nE|--2--\nC|--1--\nG|--2--`,
+            "G":  `A|-3---\nE|--2--\nC|-1---\nG|-----`,
+            "Gm": `A|--1--\nE|--3--\nC|--2--\nG|-----`,
+            "G#": `A|--3--\nE|--4--\nC|--3--\nG|--1--`,
+            "G#m": `A|--2--\nE|--4--\nC|--3--\nG|--1--`,
+            "Ab": `A|--3--\nE|--4--\nC|--3--\nG|--1--`,
+            "Abm": `A|--2--\nE|--4--\nC|--3--\nG|--1--`,
+            "A":  `A|-----\nE|-1---\nC|-----\nG|-2---`,
+            "Am": `A|-----\nE|-----\nC|-----\nG|--2--`,
+            "A#": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "A#m": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "Bb": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "Bbm": `A|--1--\nE|--1--\nC|--1--\nG|--3--`,
+            "B":  `A|--2--\nE|--2--\nC|--2--\nG|--4--`,
+            "Bm": `A|--2--\nE|--2--\nC|--2--\nG|--4--`
+        };
+
+        let currentChord = "C";
+
+        function getRandomChord() {
+            const randomIndex = Math.floor(Math.random() * chords.length);
+            return chords[randomIndex];
+        }
+
+        function showNextChord() {
+            currentChord = getRandomChord();
+            document.getElementById('chord').innerText = currentChord;
+            document.getElementById('diagram').innerText = "";
+        }
+
+        function showChordDetails() {
+            const diagram = diagrams[currentChord];
+            document.getElementById('diagram').innerText = diagram || "Diagram not available.";
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn("Speech recognition not supported in this browser.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        const transcript = event.results[i][0].transcript.trim().toLowerCase();
+                        if (transcript === "next") {
+                            showNextChord();
+                        }
+                    }
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+            };
+
+            recognition.start();
+        }
+
+        // Initialize
+        showNextChord();
+        initSpeechRecognition();
+    </script>
+</body>
+</html>
