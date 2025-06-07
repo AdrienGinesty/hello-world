@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Timeline</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fefefe;
+      font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      max-width: 800px;
+    }
+    .tooltip {
+      position: absolute;
+      background: #ffffff;
+      border: 1px solid #d6d9dc;
+      padding: 16px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: none;
+      pointer-events: auto;
+      z-index: 10;
+      line-height: 1.6;
+      max-width: 280px;
+      border-radius: 8px;
+    }
+    .tooltip img {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .tooltip strong {
+      font-size: 15px;
+      display: block;
+      margin-bottom: 8px;
+      color: #2a2a2a;
+    }
+    .tooltip em {
+      font-style: normal;
+      font-weight: 600;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="tooltip" id="tooltip"></div>
+  <svg viewBox="0 0 400 650" xmlns="http://www.w3.org/2000/svg" id="timeline">
+    <line x1="200" y1="640" x2="200" y2="50" stroke="#ccc" stroke-width="4"/>
+    <polygon points="195,56 205,56 200,46" fill="#0056d2"/>
+    <a href="https://www.coursera.org/recommendations" target="_blank">
+      <rect id="recommendBox" fill="#f9fafb" stroke="#d6d9dc" stroke-width="1" rx="6"/>
+      <text id="recommendText" x="200" y="36" text-anchor="middle" font-size="13" fill="#1f1f1f" font-weight="bold" style="cursor: pointer;">Get Recommendations</text>
+    </a>
+  </svg>
+
+  <script>
+    const recommendText = document.getElementById('recommendText');
+    const tooltip = document.getElementById('tooltip');
+    const svg = document.getElementById('timeline');
+
+    const courseData = [
+      {
+        title: "AI Product Management",
+        year: 2025,
+        type: "Course",
+        rating: "4.8",
+        desc: "Learn how to manage AI products effectively.",
+        logo: "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/http://coursera-university-assets.s3.amazonaws.com/16/ff7d736fe7440b882e9d4c1ccd997c/coursera-wordmark-logo-full-rgb.png",
+        url: "https://www.coursera.org/learn/ai-product-management",
+        duration: "4 weeks",
+        level: "Beginner",
+        inProgress: true
+      },
+      {
+        title: "Deep Learning Specialization",
+        year: 2024,
+        type: "Specialization",
+        rating: "4.9",
+        desc: "Master deep learning with neural networks and TensorFlow.",
+        logo: "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/http://coursera-university-assets.s3.amazonaws.com/16/ff7d736fe7440b882e9d4c1ccd997c/coursera-wordmark-logo-full-rgb.png",
+        url: "https://www.coursera.org/specializations/deep-learning",
+        duration: "6 months",
+        level: "Advanced"
+      },
+      {
+        title: "Data Science Specialization",
+        year: 2021,
+        type: "Specialization",
+        rating: "4.8",
+        desc: "Comprehensive data science track from Johns Hopkins.",
+        logo: "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/http://coursera-university-assets.s3.amazonaws.com/16/ff7d736fe7440b882e9d4c1ccd997c/coursera-wordmark-logo-full-rgb.png",
+        url: "https://www.coursera.org/specializations/jhu-data-science",
+        duration: "8 months",
+        level: "Intermediate"
+      },
+      {
+        title: "Machine Learning by Stanford",
+        year: 2021,
+        type: "Course",
+        rating: "4.9",
+        desc: "Introductory course on ML by Andrew Ng.",
+        logo: "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/http://coursera-university-assets.s3.amazonaws.com/16/ff7d736fe7440b882e9d4c1ccd997c/coursera-wordmark-logo-full-rgb.png",
+        url: "https://www.coursera.org/learn/machine-learning",
+        duration: "11 weeks",
+        level: "Intermediate"
+      },
+      {
+        title: "Introduction to Python",
+        year: 2020,
+        type: "Course",
+        rating: "4.7",
+        desc: "Learn Python fundamentals for programming and data.",
+        logo: "https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/http://coursera-university-assets.s3.amazonaws.com/16/ff7d736fe7440b882e9d4c1ccd997c/coursera-wordmark-logo-full-rgb.png",
+        url: "https://www.coursera.org/learn/python",
+        duration: "5 weeks",
+        level: "Beginner"
+      }
+    ];
+
+    const startY = 520;
+    const spacing = 80;
+
+    const courses = courseData.slice().reverse().map((course, i) => ({
+      ...course,
+      y: startY - i * spacing
+    }));
+
+    const insertedYears = new Set();
+    courses.forEach((course, i) => {
+      const year = course.year;
+      if (!insertedYears.has(year)) {
+        const y = course.y + spacing / 2;
+        svg.insertAdjacentHTML("beforeend", `
+          <line x1="50" y1="${y}" x2="350" y2="${y}" stroke="#d6d9dc" stroke-dasharray="5,5"/>
+          <text x="55" y="${y - 5}" font-size="12" fill="#999">${year}</text>
+        `);
+        insertedYears.add(year);
+      }
+    });
+
+    courses.forEach(c => {
+      svg.insertAdjacentHTML("beforeend", `
+        <circle cx="200" cy="${c.y}" r="6" fill="#0056d2" stroke="#fff" stroke-width="2" />
+      `);
+      svg.insertAdjacentHTML("beforeend", `
+        <image href="${c.logo}" x="155" y="${c.y - 16}" width="32" height="32" />
+      `);
+      svg.insertAdjacentHTML("beforeend", `
+        <a href="${c.url}" target="_blank">
+          <text x="210" y="${c.y + 4}" font-size="14" fill="${c.inProgress ? '#888' : '#333'}" class="course-title"
+            data-title="${c.title}"
+            data-type="${c.type}"
+            data-rating="${c.rating}"
+            data-desc="${c.desc}"
+            data-logo="${c.logo}"
+            data-duration="${c.duration}"
+            data-level="${c.level}">
+            ${c.title}${c.inProgress ? ' (in progress)' : ''}
+          </text>
+        </a>
+      `);
+    });
+
+    document.querySelectorAll('.course-title').forEach(el => {
+      el.addEventListener('mouseover', e => {
+        const { title, type, rating, desc, logo, duration, level } = e.target.dataset;
+        tooltip.innerHTML = `
+          <img src="${logo}" alt="logo">
+          <strong>${title}</strong>
+          <em>Type:</em> ${type}<br>
+          <em>Rating:</em> ${rating}<br>
+          <em>Duration:</em> ${duration}<br>
+          <em>Level:</em> ${level}<br>
+          <p>${desc}</p>
+        `;
+        tooltip.style.display = 'block';
+        const rect = e.target.getBoundingClientRect();
+        const tooltipHeight = tooltip.offsetHeight;
+        const top = rect.top + window.scrollY - tooltipHeight - 10;
+        const adjustedTop = Math.max(0, top);
+        tooltip.style.top = adjustedTop + 'px';
+        tooltip.style.left = rect.left + 20 + 'px';
+      });
+      el.addEventListener('mouseout', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+
+    recommendText.addEventListener('mouseover', e => {
+      tooltip.innerHTML = '<strong>Recommended Courses</strong><div style="display: flex; gap: 16px; padding: 8px 0;">' +
+        courseData.slice(0, 3).map(c => `
+          <div style="text-align: center; width: 80px;">
+            <a href="${c.url}" target="_blank" style="text-decoration: none; color: inherit;">
+              <img src="${c.logo}" alt="logo" style="width: 40px; height: auto; margin-bottom: 6px;"/>
+              <div style="font-size: 12px;">${c.title}</div>
+            </a>
+          </div>
+        `).join('') +
+        '</div>' +
+        '<div style="margin-top: 10px; text-align: center;"><a href="https://www.coursera.org/recommendations" target="_blank" style="display: inline-block; padding: 6px 12px; background-color: #0056d2; color: #fff; font-size: 12px; border-radius: 4px; text-decoration: none;">View All</a></div>';
+      tooltip.style.display = 'block';
+      const rect = e.target.getBoundingClientRect();
+      const tooltipHeight = tooltip.offsetHeight;
+      const top = rect.top + window.scrollY + 20;
+      tooltip.style.top = top + 'px';
+      tooltip.style.left = rect.left + 'px';
+    });
+
+    tooltip.addEventListener('mouseover', () => {
+      tooltip.style.display = 'block';
+    });
+    tooltip.addEventListener('mouseout', () => {
+      tooltip.style.display = 'none';
+    });
+    recommendText.addEventListener('mouseout', () => {
+      tooltip.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
