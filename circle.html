@@ -4,77 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Circle of Fifths</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      background-color: #f5f5f5;
-      overflow: hidden;
-    }
-    svg {
-      display: block;
-      height: 100vh;
-      width: 100vw;
-    }
-    .arrow-button {
-      position: absolute;
-      bottom: 20px;
-      transform: none;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid #ccc;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      line-height: 38px;
-      text-align: center;
-      cursor: pointer;
-      z-index: 1000;
-      user-select: none;
-    }
-    .arrow-left {
-      left: 20px;
-    }
-    .arrow-right {
-      right: 20px;
-    }
-    text {
-  font-family: sans-serif;
+  <style>$1
+text.major, text.minor {
   cursor: pointer;
-    }
-    .minor {
-      font-size: 28px;
-      fill: #555;
-    }
-    .accidental {
-      font-size: 32px;
-      dy: -0.4em;
-    }
-    .roman {
-      fill: red;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .roman-lower {
-      fill: red;
-      font-size: 18px;
-      font-style: italic;
-    }
-  @media (max-width: 600px) {
-  #chord-display {
-$1pointer-events: auto;$2
-}
-
-}
 }
 </style>
 </head>
 <body>
-  <div class="arrow-button arrow-left" id="rotateLeft">⟵</div>
-  <div class="arrow-button arrow-right" id="rotateRight">⟶</div>
-  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+  <div class="arrow-icon" id="rotateLeft" style="position: fixed; bottom: 20px; left: 20px; font-size: 32px; cursor: pointer;">⟵</div>
+  <div class="arrow-icon" id="rotateRight" style="position: fixed; bottom: 20px; right: 20px; font-size: 32px; cursor: pointer;">⟶</div>
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet" style="width: 100vw; height: 100vh; display: block;">
     <g id="circle-group">
       <circle cx="500" cy="500" r="400" fill="white" stroke="#333" stroke-width="2"/>
       <circle cx="500" cy="500" r="300" fill="none" stroke="#ccc" stroke-dasharray="4,4" stroke-width="1"/>
@@ -83,13 +22,9 @@ $1pointer-events: auto;$2
       <line x1="500" y1="500" x2="774" y2="226" stroke="red" stroke-width="4"/>
       <line x1="500" y1="500" x2="226" y2="226" stroke="red" stroke-width="4"/>
     </g>
-    <g id="static-labels">
-      <text x="450" y="120" class="roman" fill="red">I</text>
-      <text x="270" y="200" class="roman" fill="red">IV</text>
-      <text x="720" y="200" class="roman" fill="red">V</text>
-      <text x="580" y="350" class="roman-lower" data-label="iii">iii</text>
-      <text x="500" y="350" class="roman-lower" data-label="vi">vi</text>
-      <text x="420" y="350" class="roman-lower" data-label="ii">ii</text>
+    <g id="static-labels">$1<text x="420" y="360" class="roman-lower" data-label="ii" fill="red">ii</text>
+      <text x="495" y="360" class="roman-lower" data-label="vi" fill="red">vi</text>
+      <text x="580" y="360" class="roman-lower" data-label="iii" fill="red">iii</text>
     </g>
   </svg>
   <script>
@@ -146,6 +81,8 @@ $1pointer-events: auto;$2
         const text = document.createElementNS(svgNS, "text");
         text.setAttribute("font-size", "48px");
         text.setAttribute("x", x);
+        text.setAttribute("class", "major");
+        text.setAttribute("style", "cursor: pointer;");
         text.setAttribute("y", y);
         text.innerHTML = splitAccidental(note);
         circleGroup.appendChild(text);
@@ -185,6 +122,7 @@ $1pointer-events: auto;$2
         text.setAttribute("x", x);
         text.setAttribute("y", y);
         text.setAttribute("class", "minor");
+        text.setAttribute("style", "cursor: pointer;");
         text.innerHTML = splitAccidental(note);
         circleGroup.appendChild(text);
 
@@ -286,7 +224,7 @@ $1pointer-events: auto;$2
 }
 </script>
   <div id="chord-display" style="position: fixed; top: 20px; right: 100px; width: 200px; padding: 10px; font-family: Arial; font-size: 14px; box-sizing: border-box;">
-  <div id="chord-diagram" style="margin-top: 10px;"></div>
+  <div id="chord-diagram" style="margin-top: 10px; pointer-events: auto;"></div>
 </div>
 </body>
 </html>
