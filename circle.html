@@ -41,17 +41,15 @@
       right: 20px;
     }
     text {
-      font-family: Arial, sans-serif;
-      font-size: 32px;
-      dominant-baseline: middle;
-      text-anchor: middle;
-      cursor: move;
+  font-family: sans-serif;
+  cursor: pointer;
     }
     .minor {
       font-size: 28px;
       fill: #555;
     }
-        32px;
+    .accidental {
+      font-size: 32px;
       dy: -0.4em;
     }
     .roman {
@@ -64,11 +62,17 @@
       font-size: 18px;
       font-style: italic;
     }
-    }
-  </style>
+  @media (max-width: 600px) {
+  #chord-display {
+$1pointer-events: auto;$2
+}
+
+}
+}
+</style>
 </head>
 <body>
-    <div class="arrow-button arrow-left" id="rotateLeft">⟵</div>
+  <div class="arrow-button arrow-left" id="rotateLeft">⟵</div>
   <div class="arrow-button arrow-right" id="rotateRight">⟶</div>
   <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
     <g id="circle-group">
@@ -89,7 +93,7 @@
     </g>
   </svg>
   <script>
-        let selectedText = null;
+    let selectedText = null;
     let currentRotation = 0;
 
     const svg = document.querySelector("svg");
@@ -136,20 +140,46 @@
 
       majors.forEach((note, i) => {
         const angle = (i / 12) * 2 * Math.PI - Math.PI / 2 + rotationRadians;
-        const x = centerX + outerRadius * Math.cos(angle);
-        const y = centerY + outerRadius * Math.sin(angle);
+        const x = centerX + outerRadius * Math.cos(angle) - 24;
+        const y = centerY + outerRadius * Math.sin(angle) + 12;
 
         const text = document.createElementNS(svgNS, "text");
+        text.setAttribute("font-size", "48px");
         text.setAttribute("x", x);
         text.setAttribute("y", y);
         text.innerHTML = splitAccidental(note);
         circleGroup.appendChild(text);
+
+        text.addEventListener("click", () => {
+          const diagrams = {
+  'C': { A: 3, E: 0, C: 0, G: 0 },
+  'G': { A: 2, E: 3, C: 2, G: 0 },
+  'D': { A: 0, E: 2, C: 2, G: 2 },
+  'A': { A: 0, E: 0, C: 1, G: 2 },
+  'E': { A: 2, E: 4, C: 4, G: 4 },
+  'B': { A: 2, E: 2, C: 3, G: 4 },
+  'F♯': { A: 1, E: 2, C: 1, G: 3 },
+  'D♭': { A: 4, E: 1, C: 1, G: 1 },
+  'A♭': { A: 3, E: 4, C: 3, G: 1 },
+  'E♭': { A: 1, E: 3, C: 3, G: 0 },
+  'B♭': { A: 1, E: 1, C: 2, G: 3 },
+  'F': { A: 0, E: 1, C: 0, G: 2 }
+};
+          const chordDisplay = document.getElementById("chord-diagram");
+          if (chordDisplay) {
+            if (diagrams[note]) {
+  chordDisplay.innerHTML = drawChord(diagrams[note]);
+} else {
+  chordDisplay.textContent = `Chord: ${note}`;
+}
+          }
+        });
       });
 
       minors.forEach((note, i) => {
         const angle = (i / 12) * 2 * Math.PI - Math.PI / 2 + rotationRadians;
-        const x = centerX + innerRadius * Math.cos(angle);
-        const y = centerY + innerRadius * Math.sin(angle);
+        const x = centerX + innerRadius * Math.cos(angle) - 16;
+        const y = centerY + innerRadius * Math.sin(angle) + 10;
 
         const text = document.createElementNS(svgNS, "text");
         text.setAttribute("x", x);
@@ -157,29 +187,54 @@
         text.setAttribute("class", "minor");
         text.innerHTML = splitAccidental(note);
         circleGroup.appendChild(text);
+
+        text.addEventListener("click", () => {
+          const diagrams = {
+            'Am': { A: 0, E: 0, C: 0, G: 2 },
+            'Em': { A: 2, E: 3, C: 4, G: 4 },
+            'Bm': { A: 2, E: 2, C: 2, G: 4 },
+            'F♯m': { A: 0, E: 2, C: 1, G: 2 },
+            'C♯m': { A: 4, E: 0, C: 1, G: 1 },
+            'G♯m': { A: 2, E: 4, C: 3, G: 1 },
+            'D♯m': { A: 1, E: 2, C: 3, G: 3 },
+            'B♭m': { A: 1, E: 1, C: 1, G: 3 },
+            'Fm': { A: 3, E: 1, C: 0, G: 1 },
+            'Cm': { A: 3, E: 3, C: 3, G: 0 },
+            'Gm': { A: 1, E: 3, C: 2, G: 0 },
+            'Dm': { A: 0, E: 1, C: 2, G: 2 }
+          };
+          const chordDisplay = document.getElementById("chord-diagram");
+          if (chordDisplay) {
+            if (diagrams[note]) {
+              chordDisplay.innerHTML = drawChord(diagrams[note]);
+            } else {
+              chordDisplay.textContent = `Chord: ${note}`;
+            }
+          }
+        });
       });
     }
 
     let isAnimating = false;
-function animateToRotation(targetRotation) {
-  if (isAnimating) return;
-  isAnimating = true;
-  const step = (targetRotation - currentRotation) / 10;
-  let i = 0;
-  function animate() {
-    if (i < 10) {
-      currentRotation += step;
-      drawChart(currentRotation);
-      i++;
-      requestAnimationFrame(animate);
-    } else {
-      currentRotation = targetRotation;
-      drawChart(currentRotation);
-      isAnimating = false;
+    function animateToRotation(targetRotation) {
+      if (isAnimating) return;
+      isAnimating = true;
+      const step = (targetRotation - currentRotation) / 10;
+      let i = 0;
+      function animate() {
+        if (i < 10) {
+          currentRotation += step;
+          drawChart(currentRotation);
+          i++;
+          requestAnimationFrame(animate);
+        } else {
+          currentRotation = targetRotation;
+          drawChart(currentRotation);
+          isAnimating = false;
+        }
+      }
+      animate();
     }
-  }
-  animate();
-}
 
     document.getElementById("rotateLeft").addEventListener("click", () => {
       animateToRotation(currentRotation - 30);
@@ -192,6 +247,46 @@ function animateToRotation(targetRotation) {
     document.addEventListener("DOMContentLoaded", () => {
       drawChart(currentRotation);
     });
-  </script>
+  function drawChord(diagram) {
+  const stringOrder = ['A', 'E', 'C', 'G'];
+  const fretCount = 4;
+  const fretSpacing = 40;
+  const stringSpacing = 40;
+  const svgWidth = (fretCount + 1) * fretSpacing + 60;
+  const svgHeight = stringOrder.length * stringSpacing + 60;
+
+  let svg = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
+
+  const yTop = 40;
+  const yBottom = 40 + (stringOrder.length - 1) * stringSpacing;
+
+  stringOrder.forEach((s, i) => {
+    const y = 40 + i * stringSpacing;
+    svg += `<line x1="60" y1="${y}" x2="${svgWidth - 20}" y2="${y}" stroke="black" />`;
+    svg += `<text x="40" y="${y + 5}" font-size="12" text-anchor="end">${s}</text>`;
+  });
+
+  for (let f = 0; f <= fretCount; f++) {
+    const x = 60 + f * fretSpacing;
+    const strokeWidth = f === 0 ? 4 : 1;
+    svg += `<line x1="${x}" y1="${yTop}" x2="${x}" y2="${yBottom}" stroke="black" stroke-width="${strokeWidth}" />`;
+  }
+
+  stringOrder.forEach((s, i) => {
+    const fret = diagram[s];
+    if (fret > 0) {
+      const x = 60 + fret * fretSpacing - fretSpacing / 2;
+      const y = 40 + i * stringSpacing;
+      svg += `<circle cx="${x}" cy="${y}" r="6" fill="black" />`;
+    }
+  });
+
+  svg += `</svg>`;
+  return svg;
+}
+</script>
+  <div id="chord-display" style="position: fixed; top: 20px; right: 100px; width: 200px; padding: 10px; font-family: Arial; font-size: 14px; box-sizing: border-box;">
+  <div id="chord-diagram" style="margin-top: 10px;"></div>
+</div>
 </body>
 </html>
